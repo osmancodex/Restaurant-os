@@ -18,25 +18,28 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [seeding, setSeeding] = useState(true);
   const [restaurantName, setRestaurantName] = useState('RestaurantOS');
   const { login } = useAuth();
 
-  // Fetch settings to display restaurant name
+  // Seed database AND fetch settings on mount - wait for both
   useEffect(() => {
-    fetch('/api/settings')
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.success && json.data?.restaurantName) {
-          setRestaurantName(json.data.restaurantName);
-        }
-      })
-      .catch(() => {
-        // Use default name
-      });
+    Promise.all([
+      fetch('/api/seed', { method: 'POST' }).catch(() => {}),
+      fetch('/api/settings')
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && json.data?.restaurantName) {
+            setRestaurantName(json.data.restaurantName);
+          }
+        })
+        .catch(() => {}),
+    ]).finally(() => setSeeding(false));
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (seeding) return;
     setLoading(true);
 
     try {
@@ -97,10 +100,15 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             <Button
               type="submit"
               className="w-full"
-              disabled={loading}
+              disabled={loading || seeding}
               size="lg"
             >
-              {loading ? (
+              {seeding ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Setting up system...
+                </>
+              ) : loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing in...
@@ -111,7 +119,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             </Button>
           </form>
           <div className="mt-6 text-center text-xs text-muted-foreground">
-            <p>Designed By - <a href="https://vebrixa.com">Vebrixa</a></p>
+            <p>Default: admin@restaurant.com / admin123</p>
           </div>
         </CardContent>
       </Card>
