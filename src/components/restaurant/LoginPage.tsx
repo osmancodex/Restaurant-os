@@ -111,7 +111,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             </Button>
           </form>
           <div className="mt-6 text-center text-xs text-muted-foreground">
-            <p>Default: admin@restaurant.com / admin123</p>
+            <p>Designed By - <a href="https://vebrixa.com">Vebrixa</a></p>
           </div>
         </CardContent>
       </Card>
