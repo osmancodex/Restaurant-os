@@ -26,9 +26,9 @@ export async function seedDefaultAdmin() {
   if (!existing) {
     await db.staff.create({
       data: {
-        name: 'Admin',
-        email: 'admin@restaurant.com',
-        password: 'admin123',
+        name: 'Usman Saeed',
+        email: 'usmansaeed@vebrixa.com',
+        password: '@Osman041',
         role: 'admin',
       },
     });
