@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { successResponse, errorResponse } from '@/lib/api-utils';
+import { seedAll } from '@/lib/seed';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,6 +10,16 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return errorResponse('Email and password are required');
+    }
+
+    // Auto-seed if no admin exists (handles Vercel cold starts)
+    try {
+      const adminExists = await db.staff.findFirst({ where: { role: 'admin' } });
+      if (!adminExists) {
+        await seedAll();
+      }
+    } catch {
+      // If seed fails, continue anyway
     }
 
     const staff = await db.staff.findUnique({ where: { email } });
